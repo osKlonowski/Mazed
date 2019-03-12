@@ -1,16 +1,10 @@
 from pygame.locals import *
+from pygame import *
 import sys, pygame
-pygame.init()
-
-size = width, height = 960, 960
-speed = [2, 2]
-black = 0, 0, 0
-
-screen = pygame.display.set_mode(size)
 
 class Player:
-    x = 10
-    y = 10
+    x = 5
+    y = 5
     speed = 1
  
     def moveRight(self):
@@ -26,6 +20,7 @@ class Player:
         self.y = self.y + self.speed
 
 class App:
+ 
     windowWidth = 800
     windowHeight = 600
     player = 0
@@ -34,7 +29,9 @@ class App:
         self._running = True
         self._display_surf = None
         self._image_surf = None
+        self._block_surf = None
         self.player = Player()
+        self.maze = Maze()
  
     def on_init(self):
         pygame.init()
@@ -42,7 +39,8 @@ class App:
  
         pygame.display.set_caption('MAZED')
         self._running = True
-        self._image_surf = pygame.image.load("avatar.png").convert()
+        self._image_surf = pygame.transform.scale(pygame.image.load("avatar.png"), [50,50])
+        self._block_surf = pygame.transform.scale(pygame.image.load("block.png"), [40,40])
  
     def on_event(self, event):
         if event.type == QUIT:
@@ -54,6 +52,7 @@ class App:
     def on_render(self):
         self._display_surf.fill((255,255,255))
         self._display_surf.blit(self._image_surf,(self.player.x,self.player.y))
+        self.maze.draw(self._display_surf, self._block_surf)
         pygame.display.flip()
  
     def on_cleanup(self):
@@ -85,14 +84,37 @@ class App:
             self.on_loop()
             self.on_render()
         self.on_cleanup()
+
+class Maze:
+    def __init__(self):
+       self.M = 12
+       self.N = 20
+       self.maze = [ 1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,
+                     1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,
+                     1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,
+                     1,0,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,0,1,
+                     1,0,1,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,1,
+                     1,0,1,0,1,1,1,1,0,1,1,0,1,0,1,1,1,1,0,1,
+                     1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
+                     1,0,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,0,1,
+                     1,0,1,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,1,
+                     1,0,1,0,1,1,1,1,0,1,1,0,1,0,1,1,1,1,0,1,
+                     1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
+                     1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,]
+
+    def draw(self,display_surf,image_surf):
+       bx = 0
+       by = 0
+       for i in range(0,self.M*self.N):
+           if self.maze[ bx + (by*self.M) ] == 1:
+               display_surf.blit(image_surf,( bx * 44 , by * 44))
+ 
+           bx = bx + 1
+           if bx > self.M-1:
+               bx = 0 
+               by = by + 1
+
  
 if __name__ == "__main__" :
     theApp = App()
     theApp.on_execute()
-
-# while 1:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT: sys.exit()
-
-#     screen.fill(black)
-#     pygame.display.flip()
